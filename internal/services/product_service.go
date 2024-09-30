@@ -3,7 +3,9 @@ package services
 import (
 	"aurma_product/internal/elastic"
 	"aurma_product/internal/models"
+	"aurma_product/internal/models/elasticModels"
 	"aurma_product/internal/repositories"
+	"context"
 	"fmt"
 	"github.com/antibomberman/dblayer"
 	"log"
@@ -19,8 +21,8 @@ func NewProductService(dblayer *dblayer.DBLayer, productRepo repositories.Produc
 	return &productService{productRepository: productRepo, dblayer: dblayer, elastic: es}
 }
 
-func (s *productService) Search(text string, from, size int, sort string, minPrice, maxPrice int) ([]models.ProductDetail, int, error) {
-	elasticProducts, total, err := s.elastic.ProductSearch(text, from, size, sort, minPrice, maxPrice)
+func (s *productService) Search(ctx context.Context, text string, from, size int, sort string, minPrice, maxPrice int) ([]models.ProductDetail, int, error) {
+	elasticProducts, total, err := s.elastic.ProductSearch(ctx, text, from, size, sort, minPrice, maxPrice)
 	if err != nil {
 		return nil, total, fmt.Errorf("failed to search product IDs: %w", err)
 	}
@@ -35,7 +37,7 @@ func (s *productService) Search(text string, from, size int, sort string, minPri
 
 }
 
-func (s *productService) Show(id string) (models.ProductDetail, error) {
+func (s *productService) Show(ctx context.Context, id string) (models.ProductDetail, error) {
 	// Реализация метода Show
 	return models.ProductDetail{}, nil
 }
@@ -87,7 +89,7 @@ func (s *productService) SetAllProductToElastic() error {
 			break
 		}
 
-		esProducts := make([]models.ProductElastic, 0, len(products))
+		esProducts := make([]elasticModels.Product, 0, len(products))
 		for _, product := range products {
 			log.Printf("Indexing product: %d", product.Id)
 			productPharmacy, _ := s.productRepository.ProductPharmacy(product.Id)

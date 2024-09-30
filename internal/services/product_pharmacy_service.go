@@ -2,6 +2,7 @@ package services
 
 import (
 	"aurma_product/internal/models"
+	"aurma_product/internal/models/elasticModels"
 	"fmt"
 	"log"
 	"sync"
@@ -42,7 +43,7 @@ func (s *productService) InitTotalProductPharmaciesList() error {
 	return nil
 }
 
-func (s *productService) UpdatedProductPharmacies() ([]models.ProductElastic, error) {
+func (s *productService) UpdatedProductPharmacies() ([]elasticModels.Product, error) {
 	pharmacies, err := s.productRepository.ProductPharmaciesUpdated()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get updated product pharmacies: %w", err)
@@ -64,7 +65,7 @@ func (s *productService) UpdatedProductPharmacies() ([]models.ProductElastic, er
 		return nil, nil
 	}
 
-	products := make([]models.ProductElastic, 0, len(newProductPharmacies))
+	products := make([]elasticModels.Product, 0, len(newProductPharmacies))
 	for _, value := range newProductPharmacies {
 		product, err := s.productRepository.GetByIdSearchData(value.ProductId)
 		if err != nil {
@@ -78,15 +79,15 @@ func (s *productService) UpdatedProductPharmacies() ([]models.ProductElastic, er
 	return products, nil
 }
 
-func (s *productService) ProductPharmaciesList() []models.ProductElastic {
-	var products []models.ProductElastic
+func (s *productService) ProductPharmaciesList() []elasticModels.Product {
+	var products []elasticModels.Product
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
 	mutex.RLock()
 	defer mutex.RUnlock()
 
-	products = make([]models.ProductElastic, 0, len(productPharmacies))
+	products = make([]elasticModels.Product, 0, len(productPharmacies))
 
 	for _, value := range productPharmacies {
 		wg.Add(1)
@@ -99,7 +100,7 @@ func (s *productService) ProductPharmaciesList() []models.ProductElastic {
 				return
 			}
 			mu.Lock()
-			products = append(products, models.ProductElastic{
+			products = append(products, elasticModels.Product{
 				Id:    product.Id,
 				Title: product.Title,
 				Price: value.Price,

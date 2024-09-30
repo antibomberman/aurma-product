@@ -1,6 +1,7 @@
 package models
 
 import (
+	"aurma_product/internal/models/elasticModels"
 	"database/sql"
 	pb "github.com/antibomberman/aurma-protos/gen/go/product"
 )
@@ -37,36 +38,9 @@ type ProductDetail struct {
 }
 
 // ProductElastic is the struct for product_list index in Elasticsearch
-type ProductElastic struct {
-	Id          int    `json:"id" db:"id"`
-	Title       string `json:"title" db:"title"`
-	Price       int    `json:"price" db:"price"`
-	Slug        string `json:"slug" db:"slug"`
-	Count       int    `json:"count" db:"count"`
-	IsActive    bool   `json:"is_active" db:"is_active"`
-	CompanyName string `json:"company_name" db:"company_name"`
-	Barcode     string `json:"barcode" db:"barcode"`
-	Mnn         string `json:"mnn" db:"mnn"`
-	IssueForm   string `json:"issue_form" db:"issue_form"`
-}
 
-func (p *ProductElastic) ToProductDetail(images []ProductImage) ProductDetail {
-	return ProductDetail{
-		Id:          p.Id,
-		Title:       p.Title,
-		Price:       p.Price,
-		Slug:        p.Slug,
-		Count:       p.Count,
-		IsActive:    p.IsActive,
-		CompanyName: p.CompanyName,
-		Barcode:     p.Barcode,
-		Mnn:         p.Mnn,
-		IssueForm:   p.IssueForm,
-		Images:      images,
-	}
-}
-func (p *ProductSearchWithData) ToProductElastic(price, count int) ProductElastic {
-	return ProductElastic{
+func (p *ProductSearchWithData) ToProductElastic(price, count int) elasticModels.Product {
+	return elasticModels.Product{
 		Id:          p.Id,
 		Title:       p.Title,
 		Price:       price,

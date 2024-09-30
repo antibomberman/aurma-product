@@ -27,5 +27,6 @@ type ProductRepository interface {
 	All(offset, limit int) ([]models.Product, error)
 
 	GetByIdSearchData(id int) (models.ProductSearchWithData, error)
+
 	AllProductSearchData(offset, limit int) ([]models.ProductSearchWithData, error)
 }

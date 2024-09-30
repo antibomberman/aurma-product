@@ -2,6 +2,7 @@ package services
 
 import (
 	"aurma_product/internal/models"
+	"aurma_product/internal/models/elasticModels"
 	"aurma_product/internal/models/sadykhanModels"
 	"context"
 	"io"
@@ -9,12 +10,12 @@ import (
 
 // ProductService определяет интерфейс для сервиса работы с продуктами.
 type ProductService interface {
-	Search(query string, from, size int, sort string, minPrice, maxPrice int) ([]models.ProductDetail, int, error)
-	Show(id string) (models.ProductDetail, error)
+	Search(ctx context.Context, query string, from, size int, sort string, minPrice, maxPrice int) ([]models.ProductDetail, int, error)
+	Show(ctx context.Context, id string) (models.ProductDetail, error)
 	GetImages(productID int) ([]models.ProductImage, error)
 	InitTotalProductPharmaciesList() error
-	UpdatedProductPharmacies() ([]models.ProductElastic, error)
-	ProductPharmaciesList() []models.ProductElastic
+	UpdatedProductPharmacies() ([]elasticModels.Product, error)
+	ProductPharmaciesList() []elasticModels.Product
 	SetAllProductToElastic() error
 }
 

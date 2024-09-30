@@ -6,7 +6,7 @@ import (
 )
 
 func (s server) Search(ctx context.Context, req *pb.ProductSearchRequest) (*pb.ProductSearchResponse, error) {
-	productDetails, total, err := s.productService.Search(req.Title, int(req.Page), int(req.Limit), req.Sort.String(), int(req.MinPrice), int(req.MaxPrice))
+	productDetails, total, err := s.productService.Search(ctx, req.Title, int(req.Page), int(req.Limit), req.Sort.String(), int(req.MinPrice), int(req.MaxPrice))
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,7 @@
 package elastic
 
 import (
-	"aurma_product/internal/models"
+	"aurma_product/internal/models/elasticModels"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -142,7 +142,7 @@ func (es *Elastic) ProductCreateIndex() error {
 }
 
 // ProductAddDocument добавляет продукты в Elasticsearch.
-func (es *Elastic) ProductAddDocument(products []models.ProductElastic) error {
+func (es *Elastic) ProductAddDocument(products []elasticModels.Product) error {
 	var buf bytes.Buffer
 	for _, product := range products {
 		meta := []byte(fmt.Sprintf(`{"index":{"_index":"%s","_id":"%d"}}%s`, IndexName, product.Id, "\n"))
@@ -180,7 +180,7 @@ func (es *Elastic) ProductAddDocument(products []models.ProductElastic) error {
 }
 
 // ProductSearch выполняет поиск продуктов по тексту.
-func (es *Elastic) ProductSearch(text string, from, size int, sort string, minPrice, maxPrice int) ([]models.ProductElastic, int, error) {
+func (es *Elastic) ProductSearch(ctx context.Context, text string, from, size int, sort string, minPrice, maxPrice int) ([]elasticModels.Product, int, error) {
 	boolQuery := map[string]interface{}{
 		"must": map[string]interface{}{
 			"multi_match": map[string]interface{}{
@@ -251,7 +251,7 @@ func (es *Elastic) ProductSearch(text string, from, size int, sort string, minPr
 	}
 
 	res, err := es.client.Search(
-		es.client.Search.WithContext(context.Background()),
+		es.client.Search.WithContext(ctx),
 		es.client.Search.WithIndex(IndexName),
 		es.client.Search.WithBody(&buf),
 	)
@@ -271,7 +271,7 @@ func (es *Elastic) ProductSearch(text string, from, size int, sort string, minPr
 				Value int `json:"value"`
 			} `json:"total"`
 			Hits []struct {
-				Source models.ProductElastic `json:"_source"`
+				Source elasticModels.Product `json:"_source"`
 			} `json:"hits"`
 		} `json:"hits"`
 	}
@@ -280,7 +280,7 @@ func (es *Elastic) ProductSearch(text string, from, size int, sort string, minPr
 		return nil, 0, fmt.Errorf("failed to parse response: %w", err)
 	}
 	total := result.Hits.Total.Value
-	products := make([]models.ProductElastic, len(result.Hits.Hits))
+	products := make([]elasticModels.Product, len(result.Hits.Hits))
 	for i, hit := range result.Hits.Hits {
 		products[i] = hit.Source
 	}
